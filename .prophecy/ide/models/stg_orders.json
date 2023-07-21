@@ -1,0 +1,140 @@
+{
+  "id" : "stg_orders",
+  "metainfo" : {
+    "label" : "stg_orders",
+    "autoLayout" : true,
+    "staleState" : "none",
+    "sourceSuggestions" : {
+      "sources" : [ ]
+    },
+    "graphConfig" : {
+      "userDefinedConfig" : {
+        "vars" : { }
+      }
+    }
+  },
+  "processes" : {
+    "source##Jc72p4UV" : {
+      "id" : "source##Jc72p4UV",
+      "component" : "SQLStatement",
+      "metadata" : {
+        "label" : "source",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "fileTabs" : [ {
+          "path" : "out",
+          "id" : "out",
+          "language" : "sql",
+          "content" : "SELECT *\n\nFROM {{ source('ecom', 'raw_orders') }}\n-- data runs to 2026, truncate timespan to desired range,\n-- current time as default\n\nWHERE ordered_at <= {{ var('truncate_timespan_to')}}\n"
+        } ]
+      },
+      "ports" : {
+        "inputs" : [ ],
+        "outputs" : [ {
+          "id" : "SW2YJetB",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    },
+    "renamed##ugmvotOz" : {
+      "id" : "renamed##ugmvotOz",
+      "component" : "Reformat",
+      "metadata" : {
+        "label" : "renamed",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "columnsSelector" : [ ],
+        "expressions" : [ {
+          "expression" : {
+            "expression" : "----------  ids\nid"
+          },
+          "alias" : "order_id"
+        }, {
+          "expression" : {
+            "expression" : "store_id"
+          },
+          "alias" : "location_id"
+        }, {
+          "expression" : {
+            "expression" : "customer"
+          },
+          "alias" : "customer_id"
+        }, {
+          "expression" : {
+            "expression" : "---------- properties\n(order_total / 100.0)::FLOAT"
+          },
+          "alias" : "order_total"
+        }, {
+          "expression" : {
+            "expression" : "(tax_paid / 100.0)::FLOAT"
+          },
+          "alias" : "tax_paid"
+        }, {
+          "expression" : {
+            "expression" : "---------- timestamps\nordered_at"
+          }
+        } ]
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "PBzJhx8F",
+          "slug" : "source"
+        } ],
+        "outputs" : [ {
+          "id" : "sdBLefX5",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    },
+    "stg_orders##H0iYfeSF" : {
+      "id" : "stg_orders##H0iYfeSF",
+      "component" : "TargetModel",
+      "metadata" : {
+        "label" : "stg_orders",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "customQueryDisabled" : true,
+        "customQuery" : false,
+        "incrementalEditorDisabled" : true,
+        "query" : "SELECT * \n\nFROM renamed\n",
+        "incrementalKey" : false,
+        "incremental" : {
+          "expression" : "true"
+        }
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "PPuH3tPh",
+          "slug" : "renamed"
+        } ],
+        "outputs" : [ {
+          "id" : "PoC20qdl",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    }
+  },
+  "connections" : [ {
+    "id" : "PfrIAFpy",
+    "source" : "source##Jc72p4UV",
+    "sourcePort" : "SW2YJetB",
+    "target" : "renamed##ugmvotOz",
+    "targetPort" : "PBzJhx8F"
+  }, {
+    "id" : "wFwaW2Gb",
+    "source" : "renamed##ugmvotOz",
+    "sourcePort" : "sdBLefX5",
+    "target" : "stg_orders##H0iYfeSF",
+    "targetPort" : "PPuH3tPh"
+  } ],
+  "component" : "Model"
+}

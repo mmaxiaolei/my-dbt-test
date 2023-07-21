@@ -1,0 +1,127 @@
+{
+  "id" : "stg_customers",
+  "metainfo" : {
+    "label" : "stg_customers",
+    "autoLayout" : true,
+    "staleState" : "none",
+    "sourceSuggestions" : {
+      "sources" : [ ]
+    },
+    "graphConfig" : {
+      "userDefinedConfig" : {
+        "vars" : { }
+      }
+    }
+  },
+  "processes" : {
+    "source##yPr0wKK2" : {
+      "id" : "source##yPr0wKK2",
+      "component" : "Source",
+      "metadata" : {
+        "label" : "source",
+        "phase" : 0
+      },
+      "properties" : {
+        "table" : {
+          "name" : "raw_customers",
+          "sourceType" : "Source",
+          "sourceName" : "ecom"
+        }
+      },
+      "ports" : {
+        "inputs" : [ ],
+        "outputs" : [ {
+          "id" : "yBiDsqDw",
+          "schema" : {
+            "providerType" : "databricks",
+            "fields" : [ ]
+          },
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    },
+    "renamed##W7ascXJj" : {
+      "id" : "renamed##W7ascXJj",
+      "component" : "Reformat",
+      "metadata" : {
+        "label" : "renamed",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "columnsSelector" : [ ],
+        "expressions" : [ {
+          "expression" : {
+            "expression" : "----------  ids\nid"
+          },
+          "alias" : "customer_id"
+        }, {
+          "expression" : {
+            "expression" : "---------- properties\nname"
+          },
+          "alias" : "customer_name"
+        } ]
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "WH3v5fP3",
+          "schema" : {
+            "providerType" : "databricks",
+            "fields" : [ ]
+          },
+          "slug" : "source"
+        } ],
+        "outputs" : [ {
+          "id" : "Mkigtusr",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    },
+    "stg_customers##upznsS1T" : {
+      "id" : "stg_customers##upznsS1T",
+      "component" : "TargetModel",
+      "metadata" : {
+        "label" : "stg_customers",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "customQueryDisabled" : true,
+        "customQuery" : false,
+        "incrementalEditorDisabled" : true,
+        "query" : "SELECT * \n\nFROM renamed\n",
+        "incrementalKey" : false,
+        "incremental" : {
+          "expression" : "true"
+        }
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "q9jQfI6X",
+          "slug" : "renamed"
+        } ],
+        "outputs" : [ {
+          "id" : "lvtXkNaA",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false
+      }
+    }
+  },
+  "connections" : [ {
+    "id" : "OE8BkdUv",
+    "source" : "source##yPr0wKK2",
+    "sourcePort" : "yBiDsqDw",
+    "target" : "renamed##W7ascXJj",
+    "targetPort" : "WH3v5fP3"
+  }, {
+    "id" : "s1PVNA29",
+    "source" : "renamed##W7ascXJj",
+    "sourcePort" : "Mkigtusr",
+    "target" : "stg_customers##upznsS1T",
+    "targetPort" : "q9jQfI6X"
+  } ],
+  "component" : "Model"
+}
