@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: public
+    # database: dbt
+    # schema: "{{ env_var('JAFFLE_RAW_SCHEMA', 'jaffle_raw') }}"
+    description: source table
+    tables:
+      - name: model0
+        description: just a test model
